@@ -1,36 +1,65 @@
-import React from "react"
-import {Text,Container,Button} from "native-base"
-import { createAppContainer, createStackNavigator, StackActions, NavigationActions } from 'react-navigation'; // Version can be specified in package.json
+import React from "react";
+import { Container, Button, Text, Icon } from "native-base";
+import { StackActions, NavigationActions } from "react-navigation";
+import { AppLoading } from "expo";
+import * as Font from "expo-font";
 
-class Menu extends React.Component{
-    render(){
-        return(
-            <Container style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Home Screen</Text>
-        <Button
-          title="Sign up"
-          onPress={() => {
-            this.props.navigation.dispatch(StackActions.reset({
-              index: 0,
-              actions: [
-                NavigationActions.navigate({ routeName: 'Signup' })
-              ],
-            }))
-          }}
-        />
-        <Button
-          title="Sign in"
-          onPress={() => {
-            this.props.navigation.dispatch(StackActions.reset({
-              index: 0,
-              actions: [
-                NavigationActions.navigate({ routeName: 'Signin' })
-              ],
-            }))
-          }}
-        />
-      </Container>
-        )
+class Menu extends React.Component {
+  state = {
+    loading: true
+  };
+  async componentWillMount() {
+    await Font.loadAsync({
+      Roboto: require("../node_modules/native-base/Fonts/Roboto.ttf")
+      // Roboto_medium: require("../node_modules/native-base/Fonts/Roboto_medium.ttf")
+      // Ionicons: require("../node_modules/@expo/vector-icons/fonts/Ionicons.ttf")
+    });
+    this.setState({ loading: false });
+  }
+
+  render() {
+    if (this.state.loading) {
+      return <AppLoading />;
     }
+    return (
+      <Container
+        style={{
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <Button
+          large
+          style={{ alignSelf: "center", marginBottom: 10, width: 150 }}
+          onPress={() => {
+            this.props.navigation.dispatch(
+              StackActions.reset({
+                index: 0,
+                actions: [NavigationActions.navigate({ routeName: "Signup" })]
+              })
+            );
+          }}
+        >
+          <Text>Sign up</Text>
+          <Icon name="create" />
+        </Button>
+        <Button
+          large
+          style={{ alignSelf: "center", width: 150 }}
+          onPress={() => {
+            this.props.navigation.dispatch(
+              StackActions.reset({
+                index: 0,
+                actions: [NavigationActions.navigate({ routeName: "Signin" })]
+              })
+            );
+          }}
+        >
+          <Text>Login</Text>
+          <Icon name="log-in" />
+        </Button>
+      </Container>
+    );
+  }
 }
-export default Menu
+export default Menu;

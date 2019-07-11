@@ -1,40 +1,69 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import {
-  createAppContainer,
-  createStackNavigator,
-  StackActions,
-  NavigationActions
-} from "react-navigation"; // Version can be specified in package.json
-import Signin from "./components/Signin";
-import Signup from "./components/Signup";
-import Menu from "./components/Menu"
+import React, { Component } from "react";
+import { ApolloProvider } from "react-apollo";
+import { ApolloClient, InMemoryCache, HttpLink } from "apollo-client-preset";
+import { setContext } from "apollo-link-context";
+import { signIn, signOut, getToken } from "./util";
+import Route from "./Route";
+import MenuUser from "./components/Profile/MenuUser";
 
-const Auth = createStackNavigator(
-  {
-    Menu: {
-      screen: Menu,
-      navigationOptions: {
-        title: null
-      }
-    },
+const httpLink = new HttpLink({ uri: "http://localhost:4000/graphql" });
+const authLink = setContext(async (req, { headers }) => {
+  const token = await getToken();
 
-    Signin: {
-      screen: Signin,
-      navigationOptions: {
-        title: "Sign in"
-      }
-    },
-    Signup: {
-      screen: Signup,
-      navigationOptions: {
-        title: "Sign up"
-      }
+  return {
+    ...headers,
+    headers: {
+      authorization: token ? `Bearer ${token}` : null
     }
-  },
-  {
-    initialRouteName: "Menu"
-  }
-);
+  };
+});
+const link = authLink.concat(httpLink);
 
-export default createAppContainer(Auth);
+const client = new ApolloClient({
+  link,
+  cache: new InMemoryCache()
+
+  // dataIdFromObject: o => o.id
+});
+
+class App extends Component {
+  _isMounted = false;
+  state = { loggedIn: false, data: {} };
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+  async componentWillMount() {
+    const token = await getToken();
+
+    if (token && this._isMounted) {
+      this.setState({ loggedIn: true });
+    }
+  }
+
+  handleChangeLoginState = (loggedIn = false, jwt) => {
+    this.setState({ loggedIn });
+    if (loggedIn) {
+      signIn(jwt);
+    } else {
+      signOut();
+    }
+  };
+  render() {
+    return (
+      <ApolloProvider client={client}>
+        {!this.state.loggedIn && (
+          <Route
+            screenProps={{ changeLoginState: this.handleChangeLoginState }}
+          />
+        )}
+        {this.state.loggedIn && (
+          <MenuUser
+            screenProps={{ changeLoginState: this.handleChangeLoginState }}
+          />
+        )}
+      </ApolloProvider>
+    );
+  }
+}
+export default App;
