@@ -10,16 +10,39 @@ import {
   Icon,
   Button
 } from "native-base";
+import { StackActions, NavigationActions } from "react-navigation";
 import HeaderLayout from "./Header";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
+import logState from "./helpers/logState";
 
 class Signin extends React.Component {
   state = {
+    showError: false,
     email: "",
     password: "",
-    errorMessage: { email: "", password: "", isValid: false }
+    errorMessage: {
+      email: "",
+      password: "",
+      isValid: false
+    }
   };
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.screenProps.islogged !== prevProps.screenProps.islogged) {
+      if (this.props.screenProps.islogged) {
+        this.props.navigation.dispatch(
+          StackActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({
+                routeName: "Layout"
+              })
+            ]
+          })
+        );
+      }
+    }
+  }
   onEmailChange = e => {
     let email = e.nativeEvent.text;
     this.setState({ email });
@@ -47,16 +70,26 @@ class Signin extends React.Component {
         .catch(e => {
           // If the error message contains email or password we'll assume that's the error.
           if (/email/i.test(e.message)) {
-            this.setState({ emailError: true });
+            this.setState({
+              showError: " The email or password you entered is incorrect !!!"
+            });
           }
           if (/password/i.test(e.message)) {
-            this.setState({ passwordError: true });
+            this.setState({
+              showError: " The email or password you entered is incorrect !!!"
+            });
           }
         });
       // if()
     }
+    if (!email || !password) {
+      this.setState({ showError: "You must provide an email and password" });
+    }
   };
   render() {
+    const { email, password, showError } = this.state;
+
+    const { isValid } = this.state.errorMessage;
     return (
       <Container>
         <HeaderLayout
@@ -65,6 +98,7 @@ class Signin extends React.Component {
           routeNameUrl="Layout"
           navigation={this.props.navigation}
           title="Sign in"
+          rightText=""
         />
         <Content>
           <Form>
@@ -74,9 +108,7 @@ class Signin extends React.Component {
                 Email :
                 <Text
                   style={{
-                    color: this.state.errorMessage.isValid
-                      ? "#15b386"
-                      : "#ce3c3e",
+                    color: isValid ? "#15b386" : "#ce3c3e",
                     fontWeight: "bold",
                     marginLeft: 10
                   }}
@@ -84,10 +116,7 @@ class Signin extends React.Component {
                   {this.state.errorMessage.email}
                 </Text>
               </Label>
-              <Input
-                onChange={e => this.onEmailChange(e)}
-                value={this.state.email}
-              />
+              <Input onChange={e => this.onEmailChange(e)} value={email} />
             </Item>
             <Item floatingLabel>
               <Icon name="lock" />
@@ -95,9 +124,42 @@ class Signin extends React.Component {
               <Input
                 secureTextEntry={true}
                 onChange={e => this.onPasswordChange(e)}
-                value={this.state.password}
+                value={password}
               />
             </Item>
+
+            {showError && (
+              <Content>
+                <Text
+                  style={{
+                    color: "#ce3c3e",
+                    fontWeight: "bold",
+                    marginTop: 20,
+                    textAlign: "center"
+                  }}
+                >
+                  {showError}
+                </Text>
+                <Button
+                  transparent
+                  style={{ alignSelf: "center" }}
+                  onPress={() => {
+                    this.props.navigation.dispatch(
+                      StackActions.reset({
+                        index: 0,
+                        actions: [
+                          NavigationActions.navigate({
+                            routeName: "Signup"
+                          })
+                        ]
+                      })
+                    );
+                  }}
+                >
+                  <Text>go to sign in ...</Text>
+                </Button>
+              </Content>
+            )}
             <Button
               primary
               style={{

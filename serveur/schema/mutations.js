@@ -1,4 +1,7 @@
 const Users = require("../models/user");
+const Profils = require("../models/profil");
+const Meds = require("../models/med");
+const Frequencies = require("../models/frequency");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -11,6 +14,25 @@ const resolvers = {
         }
         return context.user;
       });
+    }
+  },
+
+  User: {
+    profils: (parentValue, args) => {
+      const profil = Profils.find({ userId: parentValue.id });
+      return profil;
+    }
+  },
+  Profil: {
+    meds: (parentValue, args) => {
+      const med = Meds.find({ profilId: parentValue.id });
+      return med;
+    }
+  },
+  Med: {
+    frequencies: (parentValue, args) => {
+      const frequency = Frequencies.find({ medId: parentValue.id });
+      return frequency;
     }
   },
   Mutation: {
@@ -46,7 +68,56 @@ const resolvers = {
       user.jwt = jwt.sign({ id: user.id }, process.env.SECRET_KEY);
       context.user = Promise.resolve(user);
       return user;
+    },
+    createProfil: (
+      parentValue,
+      {
+        lastName,
+        firstName,
+        age,
+        birthday,
+        sexe,
+        size,
+        bloodType,
+        allegies,
+        weight,
+        userId
+      },
+      context
+    ) => {
+      return new Profils({
+        userId,
+        lastName,
+        firstName,
+        age,
+        birthday,
+        sexe,
+        size,
+        bloodType,
+        allegies,
+        weight
+      }).save();
+    },
+    createMed: (
+      parentValue,
+      { name, duration, startDate, dosing, alarm, frequency, profilId, unit },
+      context
+    ) => {
+      return new Meds({
+        name,
+        duration,
+        startDate,
+        dosing,
+        alarm,
+        frequency,
+        profilId,
+        unit
+      }).save();
+    },
+    createFrequency: (parentValue, { hour, medId }, context) => {
+      return new Frequencies({ hour, medId }).save();
     }
   }
 };
+
 module.exports = { resolvers };

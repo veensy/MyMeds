@@ -1,27 +1,38 @@
-import React from "react";
-import { Container, Button, Text, Icon } from "native-base";
-import { StackActions, NavigationActions } from "react-navigation";
 import gql from "graphql-tag";
+import { Button, Container, Icon, Text } from "native-base";
+import React from "react";
 import { graphql } from "react-apollo";
+import { NavigationActions, StackActions } from "react-navigation";
 import HeaderLayout from "../Header";
+import { addUser } from "../helpers/images";
 
 class MenuUser extends React.Component {
   handleLogout = () => {
+    this.props.navigation.dispatch(
+      StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({
+            routeName: "Layout"
+          })
+        ]
+      })
+    );
     return this.props.screenProps.changeLoginState(false);
   };
   render() {
-    // console.log(this.props.data);
     const { currentUser } = this.props.data;
-    console.log(currentUser);
-    
+
     return (
       <Container>
         <HeaderLayout
-          leftSide={true}
+          leftSide={false}
           rightSide={true}
           routeNameUrl="Menu"
           navigation={this.props.navigation}
           title="Menu"
+          logout={this.handleLogout}
+          // rightText="logout"
         />
 
         <Container
@@ -61,12 +72,8 @@ class MenuUser extends React.Component {
               );
             }}
           >
-            <Text>Add a user</Text>
+            <Text>Add a profil</Text>
             <Icon name="person-add" />
-          </Button>
-
-          <Button full onPress={this.handleLogout}>
-            <Text>Log Out</Text>
           </Button>
         </Container>
       </Container>

@@ -1,10 +1,13 @@
+import { ApolloClient, HttpLink, InMemoryCache } from "apollo-client-preset";
+import { setContext } from "apollo-link-context";
 import React, { Component } from "react";
 import { ApolloProvider } from "react-apollo";
-import { ApolloClient, InMemoryCache, HttpLink } from "apollo-client-preset";
-import { setContext } from "apollo-link-context";
-import { signIn, signOut, getToken } from "./util";
 import Route from "./Route";
-import MenuUser from "./components/Profile/MenuUser";
+import { getToken, signIn, signOut } from "./util";
+import logState from "./components/helpers/logState";
+import { AppLoading } from "expo";
+import * as Font from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
 
 const httpLink = new HttpLink({ uri: "http://localhost:4000/graphql" });
 const authLink = setContext(async (req, { headers }) => {
@@ -28,12 +31,22 @@ const client = new ApolloClient({
 
 class App extends Component {
   _isMounted = false;
-  state = { loggedIn: false, data: {} };
-
+  state = { loggedIn: false, data: {}, loading: true };
+  async componentDidMount() {}
   componentDidMount() {
     this._isMounted = true;
   }
   async componentWillMount() {
+    try {
+      await Font.loadAsync({
+        Roboto: require("./node_modules/native-base/Fonts/Roboto.ttf"),
+        Roboto_medium: require("./node_modules/native-base/Fonts/Roboto_medium.ttf"),
+        Ionicons: require("./node_modules/native-base/Fonts/Ionicons.ttf")
+      });
+      this.setState({ loading: false });
+    } catch (error) {
+      console.log("error loading icon fonts", error);
+    }
     const token = await getToken();
 
     if (token && this._isMounted) {
@@ -49,19 +62,19 @@ class App extends Component {
       signOut();
     }
   };
+
   render() {
+    if (this.state.loading) {
+      return <AppLoading />;
+    }
     return (
       <ApolloProvider client={client}>
-        {!this.state.loggedIn && (
-          <Route
-            screenProps={{ changeLoginState: this.handleChangeLoginState }}
-          />
-        )}
-        {this.state.loggedIn && (
-          <MenuUser
-            screenProps={{ changeLoginState: this.handleChangeLoginState }}
-          />
-        )}
+        <Route
+          screenProps={{
+            changeLoginState: this.handleChangeLoginState,
+            islogged: this.state.loggedIn
+          }}
+        />
       </ApolloProvider>
     );
   }

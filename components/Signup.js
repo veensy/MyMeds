@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { StackActions, NavigationActions } from "react-navigation";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
 import {
@@ -19,8 +20,25 @@ class Signup extends Component {
     email: "",
     password: "",
     confirmPassword: "",
+    showError: false,
     errorMessage: { email: "", password: "", isValid: false }
   };
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.screenProps.islogged !== prevProps.screenProps.islogged) {
+      if (this.props.screenProps.islogged) {
+        this.props.navigation.dispatch(
+          StackActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({
+                routeName: "Layout"
+              })
+            ]
+          })
+        );
+      }
+    }
+  }
   onEmailChange = e => {
     let email = e.nativeEvent.text;
     this.setState({ email });
@@ -61,7 +79,11 @@ class Signup extends Component {
     }
     if (password !== confirmPassword) {
       let error = "You must provide the same password";
-      this.setState({ errorMessage: { password: error } });
+      this.setState({ showError: error });
+    }
+    if (!email || !password || !confirmPassword) {
+      let error = "You must fill out all required fields";
+      this.setState({ showError: error });
     }
   };
   render() {
@@ -73,6 +95,7 @@ class Signup extends Component {
           routeNameUrl="Layout"
           navigation={this.props.navigation}
           title="Sign up"
+          rightText=""
         />
         <Content>
           <Form>
@@ -115,10 +138,11 @@ class Signup extends Component {
               style={{
                 color: "#ce3c3e",
                 fontWeight: "bold",
-                marginLeft: 40
+                marginLeft: 40,
+                marginTop: 20
               }}
             >
-              {this.state.errorMessage.password}
+              {this.state.showError}
             </Text>
             <Button
               primary

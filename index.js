@@ -6,7 +6,6 @@ const { typeDefs } = require("./serveur/schema/types");
 const { resolvers } = require("./serveur/schema/mutations");
 const { ApolloServer } = require("apollo-server-express");
 const { getUser } = require("./serveur/schema/getUser");
-// import { MongoClient } from 'mongodb';
 
 const server = new ApolloServer({
   typeDefs,

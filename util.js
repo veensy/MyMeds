@@ -21,6 +21,7 @@ export const signIn = newToken => {
 };
 
 export const signOut = () => {
+  console.log("out");
   token = undefined;
   return AsyncStorage.removeItem(AUTH_TOKEN);
 };

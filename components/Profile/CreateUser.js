@@ -1,18 +1,28 @@
-import React, { Component } from "react";
 import {
+  Button,
   Container,
   Content,
-  Text,
+  DatePicker,
   Form,
-  Item,
   Input,
-  Label,
-  Icon,
-  Button,
+  Item,
   Picker,
-  DatePicker
+  Text
 } from "native-base";
+import React, { Component } from "react";
+import { Image } from "react-native";
 import HeaderLayout from "../Header";
+import {
+  blood,
+  calendar,
+  firstName,
+  genders,
+  lastName,
+  size,
+  warning,
+  weight
+} from "../helpers/images";
+
 class CreateUser extends Component {
   state = {
     selected: "",
@@ -47,28 +57,22 @@ class CreateUser extends Component {
         <HeaderLayout
           leftSide={true}
           rightSide={true}
-          routeNameUrl="MenuUser"
+          routeNameUrl="Layout"
           navigation={this.props.navigation}
           title="Create user"
         />
         <Content>
           <Form>
-            <Item floatingLabel>
-              <Icon name="person" />
-              <Label style={{ marginLeft: 30, color: "#808080" }}>
-                First Name
-              </Label>
-              <Input />
-            </Item>
-            <Item floatingLabel>
-              <Icon name="person" />
-              <Label style={{ marginLeft: 30, color: "#808080" }}>
-                Last Name
-              </Label>
-              <Input />
+            <Item>
+              <Image source={firstName} style={{ height: 20 }} alt="weight" />
+              <Input placeholder="First Name" />
             </Item>
             <Item>
-              <Icon name="calendar" />
+              <Image source={lastName} style={{ height: 20 }} alt="weight" />
+              <Input placeholder="Last Name" />
+            </Item>
+            <Item>
+              <Image source={calendar} style={{ height: 20 }} alt="weight" />
               <DatePicker
                 defaultDate={new Date()}
                 minimumDate={new Date(1930, 1, 1)}
@@ -79,20 +83,17 @@ class CreateUser extends Component {
                 animationType={"fade"}
                 androidMode={"default"}
                 placeHolderText="Select date"
-                textStyle={{ color: "#808080" }}
-                placeHolderTextStyle={{ color: "#808080", marginLeft: 20 }}
+                placeHolderTextStyle={{ color: "#575757", marginLeft: -4 }}
                 onDateChange={this.setDate}
                 disabled={false}
               />
             </Item>
-            <Item picker style={{ marginLeft: 18 }}>
-              <Icon name="male" />
-              <Icon style={{ marginLeft: -12 }} name="female" />
+            <Item picker style={{ marginLeft: 14 }}>
+              <Image source={genders} style={{ height: 20 }} alt="weight" />
               <Picker
                 mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
                 placeholder="Sexe"
-                placeholderStyle={{ color: "#808080", marginLeft: -4 }}
+                placeholderStyle={{ color: "#575757", marginLeft: -8 }}
                 placeholderIconColor="#007aff"
                 selectedValue={this.state.genre}
                 onValueChange={this.onGenreChange}
@@ -101,20 +102,20 @@ class CreateUser extends Component {
                 <Picker.Item label="Femelle" value="femelle" />
               </Picker>
             </Item>
-            <Item floatingLabel>
-              <Icon name="resize" />
-              <Label style={{ marginLeft: 30, color: "#808080" }}>
-                Size (cm)
-              </Label>
-              <Input />
+            <Item>
+              <Image source={size} style={{ height: 20 }} alt="weight" />
+              <Input placeholder="Size (cm)" />
             </Item>
-            <Item picker style={{ marginLeft: 18 }}>
-              <Icon name="water" />
+            <Item>
+              <Image source={weight} style={{ height: 20 }} alt="weight" />
+              <Input placeholder="Weight (kg)" />
+            </Item>
+            <Item picker style={{ marginLeft: 14 }}>
+              <Image source={blood} style={{ height: 20 }} alt="weight" />
               <Picker
                 mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
                 placeholder="Blood type"
-                placeholderStyle={{ color: "#808080", marginLeft: 14 }}
+                placeholderStyle={{ color: "#575757", marginLeft: -8 }}
                 placeholderIconColor="#007aff"
                 selectedValue={this.state.bloodType}
                 onValueChange={this.onBloodTypeChange}
@@ -124,12 +125,9 @@ class CreateUser extends Component {
                 })}
               </Picker>
             </Item>
-            <Item floatingLabel>
-              <Icon name="warning" />
-              <Label style={{ color: "#808080", marginLeft: 30 }}>
-                Allergies
-              </Label>
-              <Input />
+            <Item>
+              <Image source={warning} style={{ height: 20 }} alt="weight" />
+              <Input placeholder="Allergies" />
             </Item>
             <Button
               primary

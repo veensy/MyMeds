@@ -1,12 +1,23 @@
+import {
+  Body,
+  Button,
+  Header,
+  Icon,
+  Left,
+  Right,
+  Text,
+  Title
+} from "native-base";
 import React, { Component } from "react";
-import { Header, Left, Button, Icon, Body, Title, Right } from "native-base";
-import { StackActions, NavigationActions } from "react-navigation";
+import { NavigationActions, StackActions } from "react-navigation";
+import { signOut } from "../util";
+
 class HeaderLayout extends Component {
   render() {
     return (
       <Header>
-        {this.props.leftSide && (
-          <Left>
+        <Left>
+          {this.props.leftSide && (
             <Button
               transparent
               onPress={() => {
@@ -24,18 +35,18 @@ class HeaderLayout extends Component {
             >
               <Icon name="arrow-back" />
             </Button>
-          </Left>
-        )}
+          )}
+        </Left>
         <Body>
           <Title>{this.props.title}</Title>
         </Body>
-        {this.props.rightSide && (
-          <Right>
-            <Button transparent>
-              <Icon name="menu" />
+        <Right>
+          {this.props.rightSide && (
+            <Button transparent onPress={this.props.logout}>
+              <Text>logout</Text>
             </Button>
-          </Right>
-        )}
+          )}
+        </Right>
       </Header>
     );
   }

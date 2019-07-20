@@ -1,26 +1,9 @@
+import { Button, Container, Icon, Text } from "native-base";
 import React from "react";
-import { Container, Button, Text, Icon } from "native-base";
-import { StackActions, NavigationActions } from "react-navigation";
-import { AppLoading } from "expo";
-import * as Font from "expo-font";
+import { NavigationActions, StackActions } from "react-navigation";
 
 class Menu extends React.Component {
-  state = {
-    loading: true
-  };
-  async componentWillMount() {
-    await Font.loadAsync({
-      Roboto: require("../node_modules/native-base/Fonts/Roboto.ttf")
-      // Roboto_medium: require("../node_modules/native-base/Fonts/Roboto_medium.ttf")
-      // Ionicons: require("../node_modules/@expo/vector-icons/fonts/Ionicons.ttf")
-    });
-    this.setState({ loading: false });
-  }
-
   render() {
-    if (this.state.loading) {
-      return <AppLoading />;
-    }
     return (
       <Container
         style={{

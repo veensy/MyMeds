@@ -1,20 +1,36 @@
+import { Container, Content } from "native-base";
 import React, { Component } from "react";
-import { Container, Left, Icon, Button, Body, Title, Right } from "native-base";
-import Menu from "./Menu";
 import Header from "./Header";
+import Menu from "./Menu";
+import MenuUser from "./Profile/MenuUser";
 
 class Layout extends Component {
   render() {
+    const { islogged } = this.props.screenProps;
+
     return (
       <Container>
-        <Header
-          navigation={this.props.navigation}
-          routeNameUrl=""
-          title="Menu"
-          leftSide={false}
-          rightSide={false}
-        />
-        <Menu navigation={this.props.navigation} />
+        {!islogged && (
+          <Content>
+            <Menu
+              navigation={this.props.navigation}
+              logout={this.props.screenProps.changeLoginState}
+              screenProps={{
+                changeLoginState: this.props.screenProps.changeLoginState
+              }}
+            />
+          </Content>
+        )}
+        {islogged && (
+          <MenuUser
+            navigation={this.props.navigation}
+            // logout={this.props.screenProps.changeLoginState}
+            screenProps={{
+              changeLoginState: this.props.screenProps.changeLoginState
+              // islogged: this.state.loggedIn
+            }}
+          />
+        )}
       </Container>
     );
   }
