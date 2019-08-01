@@ -5,19 +5,19 @@ import {
   CardItem,
   Container,
   Content,
-  Right,
-  Icon,
   Spinner,
   Text,
-  SwipeRow
+  View
 } from "native-base";
-import { Image } from "react-native";
-import { size, weight } from "../helpers/images";
+import { Image, Alert } from "react-native";
 import React, { Component } from "react";
 import { graphql } from "react-apollo";
+import gql from "graphql-tag";
 import currentUser from "../../queries/currentUser";
 import HeaderLayout from "../Header";
 import {
+  _size,
+  _weight,
   male,
   female,
   cake,
@@ -31,6 +31,7 @@ import { NavigationActions, StackActions } from "react-navigation";
 
 class ProfilList extends Component {
   state = { idx: "", expand: false, showOption: false };
+
   handleLogout = () => {
     this.props.navigation.dispatch(
       StackActions.reset({
@@ -91,40 +92,114 @@ class ProfilList extends Component {
       })
     );
   };
-  showOptions = id => {
-    console.log(id);
-    return (
-      <Content>
-        <Button>
-          <Text>edit</Text>
-        </Button>
-        <Button>
-          <Text>delete</Text>
-        </Button>
-      </Content>
+
+  deleteProfil = (id, name) => {
+    return Alert.alert(
+      `Are you sure you want to delete ${name}'s profil ?`,
+      "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: `Delete ${name}`, onPress: () => this.props.deleteProfil(id) }
+      ],
+      { cancelable: false }
     );
   };
-
+  renderTrash = (id, firstName) => {
+    if (id && firstName) {
+      return (
+        <Button
+          transparent
+          style={{ width: 34, height: 34 }}
+          onPress={e => this.deleteProfil(id, firstName)}
+        >
+          <Image source={trash} alt="trash" style={{ width: 30, height: 30 }} />
+        </Button>
+      );
+    }
+  };
+  renderEdit = (
+    id,
+    firstName,
+    lastName,
+    birthday,
+    bloodType,
+    sexe,
+    size,
+    weight,
+    allergies
+  ) => {
+    const profil = {
+      id,
+      firstName,
+      lastName,
+      birthday,
+      bloodType,
+      sexe,
+      size,
+      weight,
+      allergies
+    };
+    if (id && firstName) {
+      return (
+        <Button
+          transparent
+          style={{ width: 34, height: 34 }}
+          onPress={e => this.editProfil(profil)}
+        >
+          <Image source={edit} alt="trash" style={{ width: 30, height: 30 }} />
+        </Button>
+      );
+    }
+  };
+  editProfil = profil => {
+    this.props.navigation.dispatch(
+      StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({
+            routeName: "EditProfil",
+            params: {
+              profil
+            }
+          })
+        ]
+      })
+    );
+  };
   renderProfil = () => {
     if (!this.props.data.loading) {
       return this.props.data.currentUser.profils.map((user, idx) => {
         return (
           <Card key={idx}>
-            <Content style={{ alignSelf: "flex-end" }}>
-              <Button
-                transparent
-                onPress={() =>
-                  this.setState({ showOption: !this.state.showOption })
-                }
-              >
-                <Text>...</Text>
-              </Button>
-              {this.state.showOption && (
-                <Content>{this.showOptions(user.id)}</Content>
-              )}
-            </Content>
             <CardItem button onPress={() => this.expandCard(idx)}>
               <Body>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignSelf: "stretch"
+                  }}
+                >
+                  <View>
+                    {this.renderEdit(
+                      user.id,
+                      user.firstName,
+                      user.lastName,
+                      user.birthday,
+                      user.bloodType,
+                      user.sexe,
+                      user.size,
+                      user.weight,
+                      user.allergies
+                    )}
+                  </View>
+                  <View>{this.renderTrash(user.id, user.firstName)}</View>
+                </View>
                 {this.renderSexe(user.sexe)}
                 <Text
                   style={{
@@ -149,7 +224,7 @@ class ProfilList extends Component {
                       onPress={() => this.expandCard(idx)}
                     >
                       <Image
-                        source={size}
+                        source={_size}
                         alt="human-height"
                         style={{ height: 20 }}
                       />
@@ -162,7 +237,7 @@ class ProfilList extends Component {
                         {user.size}
                       </Text>
                       <Image
-                        source={weight}
+                        source={_weight}
                         alt="human-weight"
                         style={{ height: 20 }}
                       />
@@ -226,7 +301,6 @@ class ProfilList extends Component {
   };
 
   render() {
-    // console.log(this.props);
     if (this.props.data.loading) {
       return (
         <Container>
@@ -237,17 +311,17 @@ class ProfilList extends Component {
       );
     }
     if (this.props.data.error) {
+      console.log(this.props);
       return (
         <Container>
           <Content>
-            <Text>
-              <Spinner />
-              Error to fetch data
-            </Text>
+            <Spinner />
+            <Text>Error to fetch data</Text>
           </Content>
         </Container>
       );
     }
+
 
     return (
       <Container>
@@ -260,10 +334,30 @@ class ProfilList extends Component {
           logout={this.handleLogout}
         />
 
-        <Content scrollEnabled={false}>{this.renderProfil()}</Content>
+        <Content scrollEnabled={true}>{this.renderProfil()}</Content>
       </Container>
     );
   }
 }
 
-export default graphql(currentUser)(ProfilList);
+export default graphql(
+  gql`
+    mutation DeleteProfil($id: String!) {
+      deleteProfil(id: $id) {
+        id
+        firstName
+      }
+    }
+  `,
+  {
+    props: ({ mutate }) => ({
+      deleteProfil: id =>
+        mutate({
+          variables: {
+            id
+          },
+          refetchQueries: [{ query: currentUser }]
+        })
+    })
+  }
+)(graphql(currentUser)(ProfilList));

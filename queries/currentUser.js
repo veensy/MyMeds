@@ -16,6 +16,7 @@ export default gql`
         weight
         allergies
         meds {
+          profilId
           duration
           startDate
           unit
@@ -23,10 +24,7 @@ export default gql`
           alarm
           name
           id
-          frequencies {
-            id
-            hour
-          }
+          frequencies 
         }
       }
     }

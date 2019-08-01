@@ -14,7 +14,7 @@ import { StackActions, NavigationActions } from "react-navigation";
 import HeaderLayout from "./Header";
 import { graphql } from "react-apollo";
 import gql from "graphql-tag";
-import logState from "./helpers/logState";
+import signin from "../mutations/login";
 
 class Signin extends React.Component {
   state = {
@@ -178,19 +178,8 @@ class Signin extends React.Component {
   }
 }
 
-export default graphql(
-  gql`
-    mutation Login($email: String!, $password: String!) {
-      login(email: $email, password: $password) {
-        id
-        email
-        jwt
-      }
-    }
-  `,
-  {
-    props: ({ mutate }) => ({
-      login: (email, password) => mutate({ variables: { email, password } })
-    })
-  }
-)(Signin);
+export default graphql(signin, {
+  props: ({ mutate }) => ({
+    login: (email, password) => mutate({ variables: { email, password } })
+  })
+})(Signin);

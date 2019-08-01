@@ -66,7 +66,7 @@ class MenuUser extends React.Component {
                 StackActions.reset({
                   index: 0,
                   actions: [
-                    NavigationActions.navigate({ routeName: "CreateUser" })
+                    NavigationActions.navigate({ routeName: "CreateProfil" })
                   ]
                 })
               );

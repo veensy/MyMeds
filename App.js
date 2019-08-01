@@ -1,10 +1,9 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "apollo-client-preset";
 import { setContext } from "apollo-link-context";
 import React, { Component } from "react";
-import { ApolloProvider } from "react-apollo";
+import { ApolloProvider, graphQLErrors } from "react-apollo";
 import Route from "./Route";
 import { getToken, signIn, signOut } from "./util";
-import logState from "./components/helpers/logState";
 import { AppLoading } from "expo";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,7 +23,11 @@ const link = authLink.concat(httpLink);
 
 const client = new ApolloClient({
   link,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  onError: ({ networkError, graphQLErrors }) => {
+    console.log("graphQLErrors", graphQLErrors);
+    console.log("networkError", networkError);
+  }
 
   // dataIdFromObject: o => o.id
 });

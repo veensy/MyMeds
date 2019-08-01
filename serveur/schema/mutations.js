@@ -1,7 +1,7 @@
 const Users = require("../models/user");
 const Profils = require("../models/profil");
 const Meds = require("../models/med");
-const Frequencies = require("../models/frequency");
+// const Frequencies = require("../models/frequency");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -29,12 +29,12 @@ const resolvers = {
       return med;
     }
   },
-  Med: {
-    frequencies: (parentValue, args) => {
-      const frequency = Frequencies.find({ medId: parentValue.id });
-      return frequency;
-    }
-  },
+  // Med: {
+  //   frequencies: (parentValue, args) => {
+  //     const frequency = Frequencies.find({ medId: parentValue.id });
+  //     return frequency;
+  //   }
+  // },
   Mutation: {
     login: async (parentValue, { email, password }, context) => {
       const user = await Users.findOne({ email });
@@ -55,6 +55,7 @@ const resolvers = {
       }
     },
     signup: async (parentValue, { email, password }, context) => {
+      console.log("test");
       const existingUser = await Users.findOne({ email });
       if (existingUser) {
         throw new Error("Email already used");
@@ -74,12 +75,11 @@ const resolvers = {
       {
         lastName,
         firstName,
-        age,
         birthday,
         sexe,
         size,
         bloodType,
-        allegies,
+        allergies,
         weight,
         userId
       },
@@ -89,18 +89,49 @@ const resolvers = {
         userId,
         lastName,
         firstName,
-        age,
         birthday,
         sexe,
         size,
         bloodType,
-        allegies,
+        allergies,
         weight
       }).save();
     },
+    editProfil: (
+      parentValue,
+      {
+        id,
+        lastName,
+        firstName,
+        birthday,
+        sexe,
+        size,
+        bloodType,
+        allergies,
+        weight,
+        userId
+      },
+      context
+    ) => {
+      return Profils.findByIdAndUpdate(
+        id,
+        {
+          lastName,
+          firstName,
+          birthday,
+          sexe,
+          size,
+          bloodType,
+          allergies,
+          weight,
+          userId
+        },
+        { omitUndefined: true }
+      );
+    },
     createMed: (
       parentValue,
-      { name, duration, startDate, dosing, alarm, frequency, profilId, unit },
+      { name, duration, startDate, dosing, alarm, frequencies, profilId, unit },
       context
     ) => {
       return new Meds({
@@ -109,13 +140,58 @@ const resolvers = {
         startDate,
         dosing,
         alarm,
-        frequency,
         profilId,
-        unit
+        unit,
+        frequencies
       }).save();
     },
-    createFrequency: (parentValue, { hour, medId }, context) => {
-      return new Frequencies({ hour, medId }).save();
+    editMed: (
+      parentValue,
+      {
+        id,
+        name,
+        duration,
+        startDate,
+        dosing,
+        alarm,
+        profilId,
+        unit,
+        frequencies
+      },
+      context
+    ) => {
+      return Meds.findByIdAndUpdate(
+        id,
+        {
+          name,
+          duration,
+          startDate,
+          dosing,
+          alarm,
+          profilId,
+          unit,
+          frequencies
+        },
+        { omitUndefined: true }
+      );
+    },
+    deleteProfil: (parentValue, { id }, context) => {
+      return Profils.findByIdAndDelete(id);
+    },
+    deleteMed: (parentValue, { id }, context) => {
+      return Meds.findByIdAndDelete(id);
+    },
+
+    med: async (parentValue, { id }, context) => {
+      console.log(id);
+
+      const med = await Meds.findById({ _id: id });
+      console.log(med);
+
+      if (!med) {
+        throw new Error("Med not found");
+      }
+      return med;
     }
   }
 };

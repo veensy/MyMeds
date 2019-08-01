@@ -6,8 +6,8 @@ const profilSchema = new Schema({
   lastName: { type: String },
   birthday: { type: Date },
   sexe: { type: String },
-  size: { type: Number },
-  weight: { type: Number },
+  size: { type: String },
+  weight: { type: String },
   bloodType: { type: String },
   allergies: { type: String },
   userId: { type: String }

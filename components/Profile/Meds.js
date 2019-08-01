@@ -8,23 +8,33 @@ import {
   Content,
   Icon,
   Spinner,
-  Text
+  Text,
+  Badge,
+  View,
+  Form,
+  Picker
 } from "native-base";
 import { NavigationActions, StackActions } from "react-navigation";
-import { Image } from "react-native";
+import { Image, Alert } from "react-native";
 import HeaderLayout from "../Header";
 import {
   pill,
   timersand,
   dropper,
   daily,
-  startDate,
+  _startDate,
   duration,
-  timesand
+  timesand,
+  trash,
+  edit,
+  plus
 } from "../helpers/images";
+import { graphql } from "react-apollo";
+import currentUser from "../../queries/currentUser";
+import gql from "graphql-tag";
 
 class Meds extends Component {
-  state = { idx: "", expand: false, color: "" };
+  state = { idx: "", expand: false, color: "", Meds: [] };
   handleLogout = () => {
     this.props.navigation.dispatch(
       StackActions.reset({
@@ -38,25 +48,42 @@ class Meds extends Component {
     );
     return this.props.screenProps.changeLoginState(false);
   };
+  componentDidMount() {
+    const med = this.props.data.currentUser.profils.filter(
+      profil => profil.id === this.props.navigation.state.params.id
+    );
+    this.setState({ Meds: med[0].meds });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const med = this.props.data.currentUser.profils.filter(
+      profil => profil.id === this.props.navigation.state.params.id
+    );
+    if (prevState.Meds.length !== med[0].meds.length) {
+      this.setState({ Meds: med[0].meds });
+    }
+  }
 
   expandCard = idx => {
     this.setState({ idx, expand: !this.state.expand });
   };
 
   renderFrequency = (freq, idx) => {
-    if (freq[0]) {
-      return freq[0].hour.map((h, i) => {
-        return <Text key={i}>{`${h}h  `}</Text>;
+    if (freq) {
+      return freq.map((h, i) => {
+        return <Text key={i}>{`${h} `}</Text>;
       });
     }
   };
   renderStartDate = startDate => {
-    let date = startDate.slice(0, 10);
-    let year = date.slice(0, 4);
-    let month = date.slice(5, 7);
-    let day = date.slice(8, 10);
-    let dateFr = `${day}-${month}-${year}`;
-    return dateFr;
+    if (startDate) {
+      let date = startDate.slice(0, 10);
+      let year = date.slice(0, 4);
+      let month = date.slice(5, 7);
+      let day = date.slice(8, 10);
+      let dateFr = `${day}-${month}-${year}`;
+      return dateFr;
+    }
   };
   handleStateDate = startDate => {
     let today = new Date(Date.now()).toLocaleDateString();
@@ -77,18 +104,130 @@ class Meds extends Component {
     }
     return color;
   };
-  renderMed = () => {
-    return this.props.navigation.state.params.meds.map((med, idx) => {
-      var color = this.handleStateDate(med.startDate);
-      //   this.setState({ color });
+  renderEdit = med => {
+    const {
+      id,
+      name,
+      duration,
+      startDate,
+      dosing,
+      unit,
+      alarm,
+      profilId,
+      frequencies
+    } = med;
+    // console.log(id);
+
+    if (id) {
       return (
-        <Card key={idx}>
-          <CardItem
-            button
-            onPress={() => this.expandCard(idx)}
-            style={{ backgroundColor: color }}
-          >
+        <Button
+          transparent
+          style={{ width: 34, height: 34 }}
+          onPress={e => this.editMed(med)}
+        >
+          <Image source={edit} alt="trash" style={{ width: 30, height: 30 }} />
+        </Button>
+      );
+    }
+  };
+  editMed = med => {
+    this.props.navigation.dispatch(
+      StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({
+            routeName: "EditMed",
+            params: {
+              med
+            }
+          })
+        ]
+      })
+    );
+  };
+  renderTrash = (id, firstName) => {
+    if (id) {
+      return (
+        <Button
+          transparent
+          style={{ width: 34, height: 34 }}
+          onPress={e => this.deleteMed(id, firstName)}
+        >
+          <Image source={trash} alt="trash" style={{ width: 30, height: 30 }} />
+        </Button>
+      );
+    }
+  };
+  deleteMed = (id, name) => {
+    return Alert.alert(
+      `Are you sure you want to delete this med ?`,
+      "",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: `Delete ${name}`, onPress: () => this.deleteAndRefetch(id) }
+      ],
+      { cancelable: false }
+    );
+  };
+  deleteAndRefetch = id => {
+    this.props.deleteMed(id);
+  };
+
+  createMed = profilId => {
+    this.props.navigation.dispatch(
+      StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({
+            routeName: "CreateMed",
+            params: {
+              profilId
+            }
+          })
+        ]
+      })
+    );
+  };
+
+  renderMed = () => {
+    return this.state.Meds.map((med, idx) => {
+      var color = this.handleStateDate(med.startDate);
+      return (
+        <Card key={idx} scrollEnabled={true}>
+          <CardItem button onPress={() => this.expandCard(idx)}>
             <Body>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignSelf: "stretch"
+                }}
+              >
+                <View>
+                  <Badge style={{ backgroundColor: color }}>
+                    <Icon
+                      name="star"
+                      style={{ fontSize: 15, color: "#fff", lineHeight: 20 }}
+                    />
+                  </Badge>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row-reverse",
+                    alignItems: "flex-end"
+                  }}
+                >
+                  <View>{this.renderEdit(med)}</View>
+                  <View>{this.renderTrash(med.id, med.name)}</View>
+                </View>
+              </View>
+
               <Image
                 source={pill}
                 alt="pill"
@@ -141,7 +280,7 @@ class Meds extends Component {
                     onPress={() => this.expandCard(idx)}
                   >
                     <Image
-                      source={startDate}
+                      source={_startDate}
                       alt="calendar"
                       style={{ height: 20, width: 20 }}
                     />
@@ -171,7 +310,7 @@ class Meds extends Component {
   };
 
   render() {
-    console.log(this.props.navigation.state.params.meds.length, "meds");
+    const profilId = this.props.navigation.state.params.meds[0].profilId;
     if (this.props.navigation.state.params.meds.length === 0) {
       return (
         <Container>
@@ -199,10 +338,47 @@ class Meds extends Component {
           title="Meds"
           logout={this.handleLogout}
         />
-        <Content>{this.renderMed()}</Content>
+        <Content>
+          <Card scrollEnabled={false}>
+            <CardItem
+              button
+              onPress={() => this.createMed(profilId)}
+              style={{ alignSelf: "center" }}
+            >
+              <Image
+                source={plus}
+                style={{
+                  height: 30,
+                  width: 30,
+                  alignSelf: "center"
+                }}
+                alt="plus"
+              />
+            </CardItem>
+          </Card>
+          {this.renderMed()}
+        </Content>
       </Container>
     );
   }
 }
 
-export default Meds;
+export default graphql(
+  gql`
+    mutation DeleteMed($id: String!) {
+      deleteMed(id: $id) {
+        id
+        name
+      }
+    }
+  `,
+  {
+    props: ({ mutate }) => ({
+      deleteMed: id =>
+        mutate({
+          variables: { id },
+          refetchQueries: [{ query: currentUser }]
+        })
+    })
+  }
+)(graphql(currentUser)(Meds));

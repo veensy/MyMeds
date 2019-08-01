@@ -1,5 +1,5 @@
 require("./user");
 require("./profil");
-require("./frequency");
+// require("./frequency");
 require("./med");
 require("./scalar");

@@ -19,8 +19,8 @@ const typeDefs = gql`
     lastName: String
     birthday: Date
     sexe: String
-    size: Int
-    weight: Int
+    size: String
+    weight: String
     bloodType: String
     allergies: String
     meds: [Med]
@@ -30,27 +30,19 @@ const typeDefs = gql`
     id: String
     profilId: String
     name: String
-    duration: Int
+    duration: String
     startDate: Date
     unit: String
-    dosing: Float
+    dosing: String
     alarm: Boolean
     profils: Profil
-    frequencies: [Frequency]
-  }
-
-  type Frequency {
-    medId: String
-    id: String
-    hour: [Int]
-    meds: Med
+    frequencies: [String]
   }
 
   type Query {
     currentUser: User
     profils: [Profil]
     meds: [Med]
-    frequencies: [Frequency]
   }
 
   type Mutation {
@@ -60,26 +52,57 @@ const typeDefs = gql`
       lastName: String!
       birthday: Date!
       sexe: String!
-      weight: Int!
-      size: Int!
-      bloodType: String!
-      allergies: String!
+      weight: String
+      size: String
+      bloodType: String
+      allergies: String
     ): Profil
+
+    editProfil(
+      id: String!
+      firstName: String
+      lastName: String
+      birthday: Date
+      sexe: String
+      weight: String
+      size: String
+      bloodType: String
+      allergies: String
+    ): Profil
+
+    med(id: String!): Med
+
+    deleteProfil(id: String!): Profil
 
     createMed(
       name: String!
-      duration: Int!
-      startDate: Date!
-      dosing: Int!
-      unit: String!
-      alarm: Boolean!
+      duration: String
+      startDate: Date
+      dosing: String
+      unit: String
+      alarm: Boolean
       profilId: String!
+      frequencies: [String]
     ): Med
 
-    createFrequency(medId: String!, hour: [Int!]): Frequency
+    editMed(
+      id: String!
+      name: String!
+      duration: String
+      startDate: Date
+      dosing: String
+      unit: String
+      alarm: Boolean
+      profilId: String!
+      frequencies: [String]
+    ): Med
 
-    deleteUser(id: Int!): User
+    deleteMed(id: String!): Med
+
+    deleteUser(id: String!): User
+
     updateUser(id: Int!, firstName: String!, lastName: String!): User
+
     login(email: String!, password: String!): User
     signup(email: String!, password: String!): User
   }

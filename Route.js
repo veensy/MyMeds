@@ -6,10 +6,13 @@ import {
 import AuthLoadingScreen from "./components/AuthLoadingScreen";
 import Layout from "./components/Layout";
 import Menu from "./components/Menu";
-import CreateUser from "./components/Profile/CreateUser";
+import CreateProfil from "./components/Profile/CreateProfil";
+import EditProfil from "./components/Profile/EditProfil";
 import MenuUser from "./components/Profile/MenuUser";
 import ProfilList from "./components/Profile/ProfilList";
 import Meds from "./components/Profile/Meds";
+import CreateMed from "./components/Profile/CreateMed";
+import EditMed from "./components/Profile/EditMed";
 import Signin from "./components/Signin";
 import Signup from "./components/Signup";
 
@@ -40,8 +43,14 @@ const AuthStack = createStackNavigator({
       title: null
     })
   },
-  CreateUser: {
-    screen: CreateUser,
+  CreateProfil: {
+    screen: CreateProfil,
+    navigationOptions: ({ navigation }) => ({
+      titre: null
+    })
+  },
+  EditProfil: {
+    screen: EditProfil,
     navigationOptions: ({ navigation }) => ({
       titre: null
     })
@@ -60,6 +69,18 @@ const AuthStack = createStackNavigator({
   },
   Meds: {
     screen: Meds,
+    navigationOptions: ({ navigation }) => ({
+      titre: null
+    })
+  },
+  CreateMed: {
+    screen: CreateMed,
+    navigationOptions: ({ navigation }) => ({
+      titre: null
+    })
+  },
+  EditMed: {
+    screen: EditMed,
     navigationOptions: ({ navigation }) => ({
       titre: null
     })

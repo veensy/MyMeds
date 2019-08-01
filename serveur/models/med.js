@@ -3,11 +3,12 @@ const Schema = moongoose.Schema;
 
 const medSchema = new Schema({
   name: { type: String },
-  duration: { type: Number },
+  duration: { type: String },
   startDate: { type: Date },
-  dosing: { type: Number },
+  dosing: { type: String },
   alarm: { type: Boolean },
   unit: { type: String },
+  frequencies: [String],
   profilId: { type: String }
 });
 
