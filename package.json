@@ -22,7 +22,7 @@
     "connect-mongo": "^3.0.0",
     "crypto": "^1.0.1",
     "dotenv": "^8.0.0",
-    "expo": "^33.0.0",
+    "expo": "^46.0.16",
     "expo-font": "^5.0.1",
     "express": "^4.17.1",
     "express-graphql": "^0.8.0",
